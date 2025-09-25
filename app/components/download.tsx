@@ -26,7 +26,7 @@ import {
 } from "./ui/tooltip";
 
 type Props = {
-  data: CustomFile[];
+  data: CustomFile[] | null;
 };
 
 export default function DowmloadSection({ data }: Props) {
@@ -41,13 +41,13 @@ export default function DowmloadSection({ data }: Props) {
           <Button
             onClick={handleDownloadAll}
             className="cursor-pointer select-none"
-            disabled={data.length === 0}
+            disabled={!data || data.length === 0}
           >
             <DownloadIcon /> Download All
           </Button>
         </div>
         <div className="min-w-[90%] my-5 rounded-md bg-slate-600/50 p-1">
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={columns} data={data ? data : []} />
         </div>
       </div>
     </>

@@ -5,7 +5,14 @@ import { FileIcon } from "./icons";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
-export default function UploadSection() {
+export default function UploadSection({
+  supabaseEnv,
+}: {
+  supabaseEnv: {
+    SUPABASE_URL: string;
+    SUPABASE_ANON_KEY: string;
+  };
+}) {
   let fetcher = useFetcher();
   let busy = fetcher.state !== "idle";
 
@@ -56,9 +63,10 @@ export default function UploadSection() {
     }
   };
 
-  const handleUpload = (e: React.FormEvent) => {
+  const handleUpload = async (e: React.FormEvent) => {
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
+    formData.append("supabaseEnv", JSON.stringify(supabaseEnv));
 
     fetcher.submit(formData, {
       action: "/upload",
