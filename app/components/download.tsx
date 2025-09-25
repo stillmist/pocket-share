@@ -6,8 +6,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+
 import { ArrowUpDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import { toast } from "sonner";
+import { useSupabase } from "~/context/supabase";
 import { DownloadIcon } from "./icons";
 import { Button } from "./ui/button";
 import {
@@ -30,8 +34,41 @@ type Props = {
 };
 
 export default function DowmloadSection({ data }: Props) {
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.data?.ok) {
+      toast.success(`Downloaded all files successfully`);
+    } else if (fetcher.data?.errors) {
+      fetcher.data?.errors.forEach((error: string) => {
+        toast.error("Error downloading file", {
+          description: error,
+        });
+      });
+    }
+  }, [fetcher.data]);
+
+  const { url, anonKey } = useSupabase();
+
   const handleDownloadAll = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log("Downloading all");
+    if (!data) return;
+
+    const formData = new FormData();
+    data.forEach((file) => formData.append("files", file.name));
+
+    formData.append(
+      "supabaseEnv",
+      JSON.stringify({
+        SUPABASE_URL: url,
+        SUPABASE_ANON_KEY: anonKey,
+      }),
+    );
+
+    fetcher.submit(formData, {
+      action: "/download/all",
+      encType: "multipart/form-data",
+      method: "POST",
+    });
   };
 
   return (
@@ -101,11 +138,49 @@ const columns: ColumnDef<CustomFile>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const name = row.original.name;
+      const fetcher = useFetcher();
+
+      // toast
+      useEffect(() => {
+        if (fetcher.data?.ok) {
+          toast.success(`Downloaded ${name} successfully`);
+        } else if (fetcher.data?.error) {
+          toast.error("Error downloading file", {
+            description: fetcher.data.error,
+          });
+        }
+      }, [fetcher.data]);
+
+      const { url, anonKey } = useSupabase();
+
+      const handleDownload = async (e: React.FormEvent) => {
+        const formData = new FormData();
+        formData.append(
+          "supabaseEnv",
+          JSON.stringify({
+            SUPABASE_URL: url,
+            SUPABASE_ANON_KEY: anonKey,
+          }),
+        );
+        formData.append("name", name);
+
+        fetcher.submit(formData, {
+          action: "/download",
+          encType: "multipart/form-data",
+          method: "POST",
+        });
+      };
+
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" className="h-9 w-9 p-0 cursor-pointer">
+              <Button
+                variant="ghost"
+                className="h-9 w-9 p-0 cursor-pointer"
+                onClick={handleDownload}
+              >
                 <span className="sr-only">Download</span>
                 <DownloadIcon fill="white" />
               </Button>
