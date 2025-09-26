@@ -1,7 +1,7 @@
 import { Shapes } from "lucide-react";
 import { useEffect } from "react";
 import {
-  redirect,
+  replace,
   useFetcher,
   useLoaderData,
   useLocation,
@@ -39,7 +39,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const searchParams = url.searchParams;
     const redirectUrl = searchParams.get("redirect") || "/";
 
-    return redirect(redirectUrl, { headers });
+    return replace(redirectUrl, { headers });
   }
 
   return {
@@ -64,7 +64,7 @@ export async function action({ request }: Route.ActionArgs) {
   if (error) {
     return { ok: false, data, error, headers };
   } else {
-    return redirect(redirectUrl, { headers });
+    return replace(redirectUrl, { headers });
   }
 }
 

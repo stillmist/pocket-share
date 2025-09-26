@@ -1,50 +1,24 @@
-import { useFetcher } from "react-router";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { LogOut } from "lucide-react";
+import { Form } from "react-router";
 import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 
 export default function Navbar() {
   return (
     <>
       <nav className="navbar flex items-center justify-between px-10">
-        <div className="text-white">Pocket Share</div>
+        <div className="text-white text-lg font-bold font-sans">
+          Pocket Share
+        </div>
 
-        <div className="flex items-center justify-center gap-2 select-none me-10">
-          <p className="text-xl font-semibold">You</p>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Avatar>
-                <AvatarImage src="" />
-                <AvatarFallback>PS</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>
-                <LogoutForm />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex items-center justify-center gap-2 select-none">
+          <Form action="/logout" method="post" className="w-full">
+            <Button type="submit" size={"sm"} className="w-full cursor-pointer">
+              Logout
+              <LogOut />
+            </Button>
+          </Form>
         </div>
       </nav>
-    </>
-  );
-}
-
-function LogoutForm() {
-  const fetcher = useFetcher();
-
-  return (
-    <>
-      <fetcher.Form action="/logout" method="post" className="w-full">
-        <Button type="submit" variant={"ghost"} size={"sm"} className="w-full">
-          Logout
-        </Button>
-      </fetcher.Form>
     </>
   );
 }
