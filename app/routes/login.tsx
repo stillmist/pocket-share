@@ -1,4 +1,3 @@
-import { Shapes } from "lucide-react";
 import { useEffect } from "react";
 import {
   replace,
@@ -10,6 +9,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 
+import Logo from "~/components/logo";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -106,8 +106,8 @@ export function LoginForm({
               href="#"
               className="flex flex-col items-center gap-2 font-medium"
             >
-              <div className="flex size-8 items-center justify-center rounded-md">
-                <Shapes className="size-6" />
+              <div className="flex items-center justify-center rounded-md w-full">
+                <Logo width="100px" height={"auto"} />
               </div>
               <span className="sr-only">Pocket Share</span>
             </a>
