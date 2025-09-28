@@ -1,13 +1,10 @@
 import DowmloadSection, { type CustomFile } from "~/components/download";
 import Navbar from "~/components/navbar";
-import UploadSection from "~/components/upload";
 import { createClient } from "~/lib/supabase.server";
 import type { Route } from "./+types/home";
 
 import type { FileObject } from "@supabase/storage-js/src/lib/types";
-import { useEffect } from "react";
 import { toast } from "sonner";
-import { useSupabase } from "~/context/supabase";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Pocket Share" }, { name: "description", content: "Home" }];
@@ -25,10 +22,6 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const parsedFiles = data ? parseFileList(data) : [];
 
   return {
-    env: {
-      SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
-      SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
-    },
     error: error?.message,
     files: parsedFiles,
   };
@@ -41,18 +34,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     });
   }
 
-  const { setUrl, setAnonKey } = useSupabase();
-
-  useEffect(() => {
-    setUrl(loaderData.env.SUPABASE_URL);
-    setAnonKey(loaderData.env.SUPABASE_ANON_KEY);
-  }, []);
-
   return (
     <main className="main-container">
       <Navbar />
       <div className="flex items-start justify-center gap-20 px-5 pt-10">
-        <UploadSection supabaseEnv={loaderData.env} />
         <DowmloadSection data={loaderData.files} />
       </div>
     </main>

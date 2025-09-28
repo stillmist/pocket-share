@@ -9,7 +9,11 @@ import {
 export default [
   layout("./middleware/protected.tsx", [
     index("routes/home.tsx"),
-    route("upload", "routes/upload.tsx"),
+
+    ...prefix("upload", [
+      index("routes/upload/index.tsx"),
+      route("do-upload", "routes/upload/do-upload.tsx"),
+    ]),
 
     ...prefix("download", [
       index("routes/download/single.tsx"),

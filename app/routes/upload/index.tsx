@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
-import { FileIcon } from "./icons";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { FileIcon } from "~/components/icons";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { useSupabase } from "~/context/supabase";
 
-export default function UploadSection({
-  supabaseEnv,
-}: {
-  supabaseEnv: {
-    SUPABASE_URL: string;
-    SUPABASE_ANON_KEY: string;
-  };
-}) {
+export default function Upload() {
+  return (
+    <>
+      <UploadSection />
+    </>
+  );
+}
+
+function UploadSection() {
   let fetcher = useFetcher();
   let busy = fetcher.state !== "idle";
+
+  const { url, anonKey } = useSupabase();
 
   useEffect(() => {
     if (fetcher.data?.ok) {
@@ -29,6 +33,7 @@ export default function UploadSection({
       toast.success("Uploaded files successfully");
     } else if (fetcher.data?.error) {
       // Error
+      console.log("error 1", fetcher.data.error);
       toast.error("Error uploading files", { description: fetcher.data.error });
     }
   }, [fetcher.data]);
@@ -65,11 +70,18 @@ export default function UploadSection({
 
   const handleUpload = async (e: React.FormEvent) => {
     const formData = new FormData();
+
     files.forEach((file) => formData.append("files", file));
-    formData.append("supabaseEnv", JSON.stringify(supabaseEnv));
+    formData.append(
+      "supabaseEnv",
+      JSON.stringify({
+        SUPABASE_URL: url,
+        SUPABASE_ANON_KEY: anonKey,
+      }),
+    );
 
     fetcher.submit(formData, {
-      action: "/upload",
+      action: "/upload/do-upload",
       encType: "multipart/form-data",
       method: "POST",
     });

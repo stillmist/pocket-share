@@ -1,7 +1,7 @@
-import type { Route } from "./+types/upload";
-
 import { createBrowserClient } from "@supabase/ssr";
 import * as tus from "tus-js-client";
+
+import type { Route } from "./+types";
 
 export async function clientAction({ request }: Route.ActionArgs) {
   let formData = await request.clone().formData();
@@ -16,7 +16,12 @@ export async function clientAction({ request }: Route.ActionArgs) {
       // Bucket name should be given by or created by the person uploading
       await uploadFile("look", `${file.name}`, file, supabaseEnv);
     } catch (error: any) {
-      const errorDetails = extractErrorDetails(error);
+      let errorDetails = extractErrorDetails(error);
+
+      if (errorDetails === null) {
+        errorDetails = { errorMessage: "Internal error", statusCode: 500 };
+      }
+
       return {
         ok: false,
         error: errorDetails?.errorMessage,
@@ -28,8 +33,19 @@ export async function clientAction({ request }: Route.ActionArgs) {
   return { ok: true };
 }
 
-export default function Upload() {
-  return <>Upload Page</>;
+function extractErrorDetails(errorMessage: string) {
+  const jsonMatch = errorMessage.toString().match(/{.*}/);
+  if (!jsonMatch) return null;
+
+  try {
+    const json = JSON.parse(jsonMatch[0]);
+    return {
+      statusCode: json.statusCode,
+      errorMessage: json.error,
+    };
+  } catch (e) {
+    return null;
+  }
 }
 
 export async function uploadFile(
@@ -89,19 +105,4 @@ export async function uploadFile(
     // Start the upload
     upload.start();
   });
-}
-
-function extractErrorDetails(errorMessage: string) {
-  const jsonMatch = errorMessage.toString().match(/{.*}/);
-  if (!jsonMatch) return null;
-
-  try {
-    const json = JSON.parse(jsonMatch[0]);
-    return {
-      statusCode: json.statusCode,
-      errorMessage: json.error,
-    };
-  } catch (e) {
-    return null;
-  }
 }
