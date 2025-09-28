@@ -7,6 +7,12 @@ import {
   useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
+import { AppSidebar } from "~/components/app-sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
 import { SupabaseContext } from "~/context/supabase";
 import { createClient } from "~/lib/supabase.server";
 
@@ -40,10 +46,20 @@ export default function Index() {
   if (!user) return null;
 
   return (
-    <SupabaseContext.Provider
-      value={{ url: env.SUPABASE_URL, anonKey: env.SUPABASE_ANON_KEY }}
-    >
-      <Outlet />
-    </SupabaseContext.Provider>
+    <SidebarProvider className="flex flex-col main-container">
+      <div className="flex flex-1">
+        <AppSidebar />
+        <div className="flex min-h-svh w-full flex-col gap-3 p-3">
+          <SidebarTrigger />
+          <SidebarInset>
+            <SupabaseContext.Provider
+              value={{ url: env.SUPABASE_URL, anonKey: env.SUPABASE_ANON_KEY }}
+            >
+              <Outlet />
+            </SupabaseContext.Provider>
+          </SidebarInset>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
