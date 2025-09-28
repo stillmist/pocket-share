@@ -1,3 +1,6 @@
+import type { FileObject } from "@supabase/storage-js/src/lib/types";
+import type { CustomFile } from ".";
+
 export async function downloadFromUrl(url: string, fileName: string) {
   const response = await fetch(url, {
     method: "GET",
@@ -21,4 +24,66 @@ export async function downloadFromUrl(url: string, fileName: string) {
   // Clean up
   a.remove();
   URL.revokeObjectURL(blobUrl);
+}
+
+export function parseFileList(files: FileObject[]) {
+  const parsedFiles: CustomFile[] = [];
+
+  for (let file of files) {
+    if (!file.id && !file.metadata) continue;
+
+    const parsedFile: CustomFile = {
+      name: file.name,
+      size: formatFileSize(file.metadata.size),
+      type: parseMimeType(file.metadata.mimetype),
+      modified: parseDate(file.metadata.lastModified),
+    };
+
+    parsedFiles.push(parsedFile);
+  }
+
+  return parsedFiles;
+}
+
+function parseDate(dateString: string) {
+  const date = new Date(dateString);
+
+  // Use Intl.DateTimeFormat with 'en-GB' for DD/MM/YYYY format
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+  const formatted = formatter.format(date);
+
+  // Replace slashes with dashes
+  const finalDate = formatted.replace(/\//g, "-");
+
+  return finalDate;
+}
+
+function parseMimeType(mimeType: string) {
+  // Split at '/' and take the second part
+  const parts = mimeType.split("/");
+  if (parts.length !== 2) return parts[0];
+
+  // For types like 'image/svg+xml', we only want 'svg'
+  const subtype = parts[1].split("+")[0];
+
+  return subtype;
+}
+
+function formatFileSize(bytes: number) {
+  const units = ["B", "kB", "MB", "GB", "TB"];
+  let i = 0;
+
+  while (bytes >= 1024 && i < units.length - 1) {
+    bytes /= 1024;
+    i++;
+  }
+
+  const size = bytes.toFixed(i === 0 ? 0 : 1); // No decimals for bytes
+  return `${size}${units[i]}`;
 }

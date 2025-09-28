@@ -16,7 +16,8 @@ export default [
     ]),
 
     ...prefix("download", [
-      index("routes/download/single.tsx"),
+      index("routes/download/index.tsx"),
+      route("single", "routes/download/single.tsx"),
       route("all", "routes/download/all.tsx"),
     ]),
   ]),

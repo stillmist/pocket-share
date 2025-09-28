@@ -6,14 +6,13 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-
 import { ArrowUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useLoaderData } from "react-router";
 import { toast } from "sonner";
-import { useSupabase } from "~/context/supabase";
-import { DownloadIcon } from "./icons";
-import { Button } from "./ui/button";
+
+import { DownloadIcon } from "~/components/icons";
+import { Button } from "~/components/ui/button";
 import {
   Table,
   TableBody,
@@ -21,19 +20,44 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./ui/table";
+} from "~/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./ui/tooltip";
+} from "~/components/ui/tooltip";
+import { useSupabase } from "~/context/supabase";
+import { createClient } from "~/lib/supabase.server";
+import type { Route } from "./+types";
+import { parseFileList } from "./utils";
 
-type Props = {
-  data: CustomFile[] | null;
-};
+export async function loader({ request }: Route.LoaderArgs) {
+  const { supabase } = createClient(request);
 
-export default function DowmloadSection({ data }: Props) {
+  const { data, error } = await supabase.storage.from("look").list("", {
+    limit: 100,
+    offset: 0,
+    sortBy: { column: "name", order: "asc" },
+  });
+
+  const parsedFiles = data ? parseFileList(data) : [];
+
+  return {
+    error: error?.message,
+    files: parsedFiles,
+  };
+}
+
+export default function Download() {
+  const { files, error } = useLoaderData<typeof loader>();
+
+  if (error) {
+    toast.error("Error loading files. Try reloading page.", {
+      description: error,
+    });
+  }
+
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -51,10 +75,10 @@ export default function DowmloadSection({ data }: Props) {
   const { url, anonKey } = useSupabase();
 
   const handleDownloadAll = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!data) return;
+    if (!files) return;
 
     const formData = new FormData();
-    data.forEach((file) => formData.append("files", file.name));
+    files.forEach((file) => formData.append("files", file.name));
 
     formData.append(
       "supabaseEnv",
@@ -78,13 +102,13 @@ export default function DowmloadSection({ data }: Props) {
           <Button
             onClick={handleDownloadAll}
             className="cursor-pointer select-none"
-            disabled={!data || data.length === 0}
+            disabled={!files || files.length === 0}
           >
             <DownloadIcon /> Download All
           </Button>
         </div>
         <div className="min-w-[90%] my-5 rounded-md bg-slate-600/50 p-1">
-          <DataTable columns={columns} data={data ? data : []} />
+          <DataTable columns={columns} data={files ? files : []} />
         </div>
       </div>
     </>
@@ -166,7 +190,7 @@ const columns: ColumnDef<CustomFile>[] = [
         formData.append("name", name);
 
         fetcher.submit(formData, {
-          action: "/download",
+          action: "/download/single",
           encType: "multipart/form-data",
           method: "POST",
         });
