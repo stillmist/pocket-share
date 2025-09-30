@@ -13,7 +13,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
-import { SupabaseContext } from "~/context/supabase";
 import { createClient } from "~/lib/supabase.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -25,15 +24,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     user,
-    env: {
-      SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
-      SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
-    },
   };
 }
 
 export default function Index() {
-  const { user, env } = useLoaderData<typeof loader>();
+  const { user } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,11 +47,7 @@ export default function Index() {
         <div className="flex min-h-svh w-full flex-col gap-3 p-3">
           <SidebarTrigger />
           <SidebarInset>
-            <SupabaseContext.Provider
-              value={{ url: env.SUPABASE_URL, anonKey: env.SUPABASE_ANON_KEY }}
-            >
-              <Outlet />
-            </SupabaseContext.Provider>
+            <Outlet />
           </SidebarInset>
         </div>
       </div>

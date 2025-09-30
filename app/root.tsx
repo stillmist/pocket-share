@@ -5,11 +5,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 
 import { Toaster } from "sonner";
 import type { Route } from "./+types/root";
 import "./app.css";
+import { SupabaseContext } from "./context/supabase";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,8 +45,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+export async function loader() {
+  return {
+    env: {
+      SUPABASE_URL: process.env.VITE_SUPABASE_URL!,
+      SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY!,
+    },
+  };
+}
+
 export default function App() {
-  return <Outlet />;
+  const { env } = useLoaderData<typeof loader>();
+
+  return (
+    <SupabaseContext.Provider
+      value={{ url: env.SUPABASE_URL, anonKey: env.SUPABASE_ANON_KEY }}
+    >
+      <Outlet />
+    </SupabaseContext.Provider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
