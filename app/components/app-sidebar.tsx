@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "~/components/ui/sidebar";
+import { useUserContext } from "~/context/user";
 
 const data = {
   user: {
@@ -51,6 +52,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useUserContext();
+
   return (
     <Sidebar collapsible="icon" className="" {...props}>
       <SidebarHeader>
@@ -119,13 +122,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg">
+                  <Avatar className="h-8 w-8 rounded-lg p-2">
                     <AvatarImage src={""} alt="avatar" />
                     <AvatarFallback className="rounded-lg">PS</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate text-medium">
-                      {data.user.email}
+                      {user?.email || data.user.email}
                     </span>
                   </div>
                 </SidebarMenuButton>
