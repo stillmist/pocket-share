@@ -8,9 +8,9 @@ import { useSupabase } from "~/context/supabase";
 
 export default function Upload() {
   return (
-    <>
+    <div className="w-full">
       <UploadSection />
-    </>
+    </div>
   );
 }
 
@@ -33,7 +33,6 @@ function UploadSection() {
       toast.success("Uploaded files successfully");
     } else if (fetcher.data?.error) {
       // Error
-      console.log("error 1", fetcher.data.error);
       toast.error("Error uploading files", { description: fetcher.data.error });
     }
   }, [fetcher.data]);
@@ -89,7 +88,7 @@ function UploadSection() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="w-[40rem] max-h-[45rem] flex flex-col items-center justify-center rounded-md p-2.5 overflow-auto">
+      <div className="w-full flex flex-col items-center justify-center rounded-md p-2.5 overflow-auto">
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -100,7 +99,9 @@ function UploadSection() {
             height={"70pt"}
             width={"50pt"}
           />
-          <p className="text-lg -z-10">Drag and drop files here</p>
+          <p className="text-lg font-semibold -z-10">
+            Drag and drop files here
+          </p>
         </div>
         <div className="my-5 text-muted-foreground">OR</div>
 
@@ -118,7 +119,7 @@ function UploadSection() {
           <Button
             type="submit"
             onClick={handleUpload}
-            className="w-[50%] text-lg text-slate-800 bg-slate-100 select-none cursor-pointer"
+            className="w-full md:w-[75%] xl:w-[50%] text-lg text-slate-800 bg-slate-100 select-none cursor-pointer"
             disabled={files.length === 0}
           >
             {busy ? "Uploading" : "Upload"}
