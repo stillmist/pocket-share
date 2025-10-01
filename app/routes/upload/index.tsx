@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import Dropzone from "react-dropzone";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { FileIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { useSupabase } from "~/context/supabase";
 
 export default function Upload() {
@@ -23,11 +23,6 @@ function UploadSection() {
   useEffect(() => {
     if (fetcher.data?.ok) {
       // Reset the files
-      const FileInput =
-        document && (document.getElementById("files") as HTMLInputElement);
-      FileInput.value = "";
-      setDndFiles([]);
-      setInputFiles([]);
       setFiles([]);
 
       toast.success("Uploaded files successfully");
@@ -38,34 +33,6 @@ function UploadSection() {
   }, [fetcher.data]);
 
   const [files, setFiles] = useState<File[]>([]);
-  const [dndFiles, setDndFiles] = useState<File[]>([]);
-  const [inputFiles, setInputFiles] = useState<File[]>([]);
-
-  useEffect(() => {
-    setFiles(removeDuplicateFiles([...dndFiles, ...inputFiles]));
-  }, [dndFiles, inputFiles]);
-
-  const handleDrop = (e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    setDndFiles(removeDuplicateFiles(dndFiles.concat(droppedFiles)));
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let target = e.target;
-
-    if (target.files) {
-      let filesFromInput: any[] = [];
-      for (let i = 0; i < target.files.length; i++) {
-        target.files.item(i) && filesFromInput.push(target.files.item(i));
-      }
-      setInputFiles(removeDuplicateFiles(filesFromInput));
-    }
-  };
 
   const handleUpload = async (e: React.FormEvent) => {
     const formData = new FormData();
@@ -89,31 +56,30 @@ function UploadSection() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="w-full flex flex-col items-center justify-center rounded-md p-2.5 overflow-auto">
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          className="dashed-border w-[85%] min-h-[24rem] flex flex-col items-center justify-center rounded-md select-none"
+        <Dropzone
+          onDrop={(acceptedFiles) =>
+            setFiles(removeDuplicateFiles(files.concat(acceptedFiles)))
+          }
         >
-          <FileIcon
-            className="fill-white -z-10"
-            height={"70pt"}
-            width={"50pt"}
-          />
-          <p className="text-lg font-semibold -z-10">
-            Drag and drop files here
-          </p>
-        </div>
-        <div className="my-5 text-muted-foreground">OR</div>
-
-        <div className="min-w-[85%] mb-5 rounded-md">
-          <Input
-            id="files"
-            name="files"
-            type="file"
-            onChange={handleInputChange}
-            multiple
-          />
-        </div>
+          {({ getRootProps, getInputProps }) => (
+            <section className="w-[85%]">
+              <div
+                {...getRootProps()}
+                className="dashed-border w-full min-h-[24rem] flex flex-col items-center justify-center rounded-md select-none"
+              >
+                <input {...getInputProps()} />
+                <FileIcon
+                  className="fill-white -z-10"
+                  height={"70pt"}
+                  width={"50pt"}
+                />
+                <p className="text-lg font-semibold -z-10">
+                  Drag 'n' drop some files here, or click to select files
+                </p>
+              </div>
+            </section>
+          )}
+        </Dropzone>
 
         <div className="mt-7 min-w-[90%] rounded-md flex justify-center">
           <Button
