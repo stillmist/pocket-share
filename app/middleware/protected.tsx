@@ -44,16 +44,34 @@ function EnsureUser({
   redirectTo: string;
   children: React.ReactNode;
 }) {
-  const { user, loading } = useUserContext();
+  const { user, loading, error } = useUserContext();
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
         <PlayIcon className="animate-ping" />
       </div>
     );
+  }
 
-  if (!user) return <Navigate to={redirectTo} replace={true} />;
+  if (error) {
+    console.error("Auth error:", error);
+    return (
+      <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+        <p className="text-sm text-destructive">Authentication error</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="text-sm text-primary hover:underline"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to={redirectTo} replace={true} />;
+  }
 
   return <>{children}</>;
 }
