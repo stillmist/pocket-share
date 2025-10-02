@@ -3,6 +3,7 @@ import Dropzone from "react-dropzone";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
+import { useSidebar } from "~/components/ui/sidebar";
 import { useSupabase } from "~/context/supabase";
 import { NonImagePreview } from "./components/file-previews";
 import { MasonryGrid } from "./components/masonry-grid";
@@ -11,6 +12,14 @@ import { fileGroups, groupFilesByType, type FileWithPreview } from "./utils";
 export default function Upload() {
   let fetcher = useFetcher();
   let busy = fetcher.state !== "idle";
+
+  // Close sidebar after navigation
+  const { isMobile, open, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    if (isMobile && open) {
+      setOpenMobile(false);
+    }
+  }, []);
 
   const { url, anonKey } = useSupabase();
 

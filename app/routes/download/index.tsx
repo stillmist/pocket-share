@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 import { DownloadIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
+import { useSidebar } from "~/components/ui/sidebar";
 import {
   Table,
   TableBody,
@@ -57,6 +58,14 @@ export default function Download() {
       description: error,
     });
   }
+
+  // Close sidebar after navigation
+  const { isMobile, open, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    if (isMobile && open) {
+      setOpenMobile(false);
+    }
+  }, []);
 
   const fetcher = useFetcher();
 
