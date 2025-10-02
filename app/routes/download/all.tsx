@@ -28,12 +28,6 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       downloadUrls.push({ name: fileName, url: data.publicUrl });
   });
 
-  downloadUrls.forEach(async ({ name, url }) => {
-    try {
-      await downloadFromUrl(url, name);
-    } catch (error: any) {}
-  });
-
   const results = await Promise.allSettled(
     downloadUrls.map(async ({ name, url }) => {
       await downloadFromUrl(url, name);
