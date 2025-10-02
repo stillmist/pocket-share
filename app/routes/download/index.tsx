@@ -106,7 +106,7 @@ export default function Download() {
 
   return (
     <>
-      <div className="min-w-[65rem] max-h-[75rem] flex-1 flex flex-col items-center justify-center rounded-md overflow-auto p-2">
+      <div className="min-w-[65rem] flex flex-col items-center justify-center rounded-md overflow-auto p-2">
         <div className="w-[90%] flex justify-end">
           <Button
             onClick={handleDownloadAll}
