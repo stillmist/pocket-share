@@ -39,7 +39,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     .map((r) => r.reason);
 
   if (errors.length === 0) {
-    return { ok: true };
+    return { ok: true, all: true };
   } else {
     return { ok: false, errors };
   }

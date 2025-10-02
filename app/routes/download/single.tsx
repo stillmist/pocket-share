@@ -25,7 +25,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   if (data.publicUrl) {
     try {
       await downloadFromUrl(data.publicUrl, fileName);
-      return { ok: true };
+      return { ok: true, single: true };
     } catch (error: any) {
       return { ok: false, error: error.message };
     }

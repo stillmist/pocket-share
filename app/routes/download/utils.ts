@@ -1,5 +1,11 @@
 import type { FileObject } from "@supabase/storage-js/src/lib/types";
-import type { CustomFile } from ".";
+import {
+  Aperture,
+  FilePenLine,
+  FileText,
+  Music,
+  Paperclip,
+} from "lucide-react";
 
 export async function downloadFromUrl(url: string, fileName: string) {
   const response = await fetch(url, {
@@ -27,16 +33,17 @@ export async function downloadFromUrl(url: string, fileName: string) {
 }
 
 export function parseFileList(files: FileObject[]) {
-  const parsedFiles: CustomFile[] = [];
+  const parsedFiles: StorageFile[] = [];
 
   for (let file of files) {
     if (!file.id && !file.metadata) continue;
 
-    const parsedFile: CustomFile = {
+    const parsedFile: StorageFile = {
+      id: file.id,
       name: file.name,
       size: formatFileSize(file.metadata.size),
-      type: parseMimeType(file.metadata.mimetype),
-      modified: parseDate(file.metadata.lastModified),
+      type: file.metadata.mimetype,
+      created_at: parseDate(file.metadata.lastModified),
     };
 
     parsedFiles.push(parsedFile);
@@ -87,3 +94,71 @@ function formatFileSize(bytes: number) {
   const size = bytes.toFixed(i === 0 ? 0 : 1); // No decimals for bytes
   return `${size}${units[i]}`;
 }
+
+export type StorageFile = {
+  name: string;
+  size: string;
+  type: string;
+  id: string;
+  created_at?: string;
+};
+
+export type FileGroup = {
+  type: "image" | "pdf" | "audio" | "text" | "other";
+  label: string;
+  icon: any;
+};
+
+export const fileGroups: FileGroup[] = [
+  {
+    type: "image",
+    label: "Photos",
+    icon: Aperture,
+  },
+  {
+    type: "pdf",
+    label: "PDFs",
+    icon: FileText,
+  },
+  {
+    type: "text",
+    label: "Text Files",
+    icon: FilePenLine,
+  },
+  {
+    type: "audio",
+    label: "Audio",
+    icon: Music,
+  },
+  {
+    type: "other",
+    label: "Other Files",
+    icon: Paperclip,
+  },
+];
+
+export const getFileType = (file: StorageFile): FileGroup["type"] => {
+  if (file.type.startsWith("image/")) return "image";
+  if (file.type === "application/pdf") return "pdf";
+  if (file.type.startsWith("audio/")) return "audio";
+  if (file.type.startsWith("text/") || file.type.includes("document"))
+    return "text";
+  return "other";
+};
+
+export const groupFilesByType = (files: StorageFile[]) => {
+  const grouped: Record<FileGroup["type"], StorageFile[]> = {
+    image: [],
+    pdf: [],
+    audio: [],
+    text: [],
+    other: [],
+  };
+
+  files.forEach((file) => {
+    const type = getFileType(file);
+    grouped[type].push(file);
+  });
+
+  return grouped;
+};
