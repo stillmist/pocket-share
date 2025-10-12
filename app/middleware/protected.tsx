@@ -24,9 +24,9 @@ export default function Index() {
         <SidebarProvider className="flex flex-col main-container">
           <div className="flex flex-1">
             <AppSidebar />
-            <div className="flex min-h-svh w-full flex-col gap-3 p-3">
-              <SidebarTrigger />
-              <SidebarInset>
+            <div className="min-h-svh w-full p-2">
+              <SidebarTrigger className="fixed top-4 sm:top-5 z-50" />
+              <SidebarInset className="mt-10 sm:mt-12">
                 <Outlet />
               </SidebarInset>
             </div>
