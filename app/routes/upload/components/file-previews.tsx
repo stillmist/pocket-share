@@ -1,3 +1,6 @@
+import { X } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { useIsMobile } from "~/hooks/use-mobile";
 import { type FileWithPreview, fileGroups, getFileType } from "../utils";
 
 export interface FilePreviewsProps {
@@ -38,14 +41,7 @@ export const ImagePreview = ({
         alt={file.name}
         className="w-full rounded-sm transition-transform group-hover:scale-105"
       />
-      {onRemove && (
-        <button
-          onClick={() => onRemove(file.id)}
-          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm"
-        >
-          ×
-        </button>
-      )}
+      {onRemove && <RemoveButton onClick={() => onRemove(file.id)} />}
     </div>
   );
 };
@@ -60,18 +56,23 @@ export const NonImagePreview = ({
   return (
     <div className="relative group border rounded-sm p-4 transition-colors duration-300 hover:bg-accent hover:scale-105">
       <FileIcon type={getFileType(file)} />
-      {onRemove && (
-        <button
-          onClick={() => onRemove(file.id)}
-          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm"
-        >
-          ×
-        </button>
-      )}
+      {onRemove && <RemoveButton onClick={() => onRemove(file.id)} />}
       <div className="mt-2 text-xs truncate text-center">{file.name}</div>
       <div className="text-xs text-gray-400 text-center">
         {(file.size / 1024 / 1024).toFixed(2)} MB
       </div>
     </div>
+  );
+};
+
+const RemoveButton = ({ ...props }: React.ComponentProps<"button">) => {
+  return (
+    <Button
+      {...props}
+      className={`absolute -top-2 -right-2 bg-red-500 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer hover:scale-105 ${useIsMobile() && "opacity-100"}`}
+      variant="destructive"
+    >
+      <X />
+    </Button>
   );
 };
